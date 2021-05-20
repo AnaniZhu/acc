@@ -1,0 +1,5 @@
+import './china'
+import './deqing'
+import './test'
+import './deqing_village2'
+import './data'

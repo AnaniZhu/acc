@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>人群分析</title>
+    <meta name="referrer" content="no-referrer" />
+</head>
+
+<body>
+    <div class="content">
+        <!-- <h1>人群迁徙态势感知</h1> -->
+        <div class="header">
+            <image src="./static/img/title.png" />
+        </div>
+        <div class="l">
+            <div class="top box1">
+                <div class="title">
+                    <div>在德数据概览33</div><div style="display: none;">更多More</div></div>
+                <div class="numlist">
+                </div>
+            </div>
+            <div class="middle box1">
+                <div class="title">近1年新德清人数</div>
+                <div id="bar1"></div>
+            </div>
+            <div class="bottom box1">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide">
+                        <div class="title">新德清人来源分析（省内）</div>
+                        <div id="bar8"></div>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="title">新德清人来源分析（境内）</div>
+                        <div id="bar9"></div>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="title">新德清人来源分析（境外）</div>
+                        <div id="bar10"></div>
+                    </div>
+                </div>
+                <div class="swiper-bottom"></div>
+            </div>
+        </div>
+        <div class="c">
+            <div class="map">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide">
+                        <div class="top-left-box" id="test">
+                            <div class="top-left-item active">实时迁入来源分布</div>
+                            <div class="top-left-item">域内人群流动分布</div>
+                        </div>
+                        <div class="bottom-left-box">
+                            <div class="bottom-left-top">
+                                <select class="bottom-left-top-item" id="county">
+                                    <option value ="德清县" selected="selected">德清县</option>
+                                </select>
+                                <select class="bottom-left-top-item" id="town">
+                                </select>
+                                <select class="bottom-left-top-item" id="village">
+                                    <option>全部</option>
+                                </select>
+                            </div>
+                            <div class="bottom-left-bottom">
+                                <div class="bottom-left-bottom-item active">人口净流入</div>
+                                <div class="bottom-left-bottom-item" style="margin-left: 0.8vw">人口净流出</div>
+                            </div>
+                        </div>
+                        <div id="china-map" class="map" ></div>
+                        <!-- <div id="deqing-map" class="map hidden-map"></div> -->
+                        <div id="village-map" class="map hidden-map"></div>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="top-left-box" id="test">
+                            <div class="top-left-item1">实时迁入来源分布</div>
+                            <div class="top-left-item1 active">域内人群流动分布</div>
+                        </div>
+                        <div class="bottom-left-box">
+                            <div class="bottom-left-top1">
+                                <select class="bottom-left-top-item1" id="county1">
+                                    <option value ="德清县" selected="selected">德清县</option>
+                                </select>
+                                <select class="bottom-left-top-item1" id="town1">
+                                </select>
+                                <select class="bottom-left-top-item1" id="village1">
+                                    <option>全部</option>
+                                </select>
+                            </div>
+                            <div class="bottom-left-bottom1">
+                                <div class="bottom-left-bottom-item1 active">人口净流入</div>
+                                <div class="bottom-left-bottom-item1" style="margin-left: 0.8vw">人口净流出</div>
+                            </div>
+                        </div>
+                        <div id="china-map1" class="map hidden-map" ></div>
+                        <!-- <div id="deqing-map1" class="map hidden-map"></div> -->
+                        <div id="village-map1" class="map"></div>
+                    </div>
+                </div>
+                <div class="swiper-map"></div>
+            </div>
+            <div class="bar2">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide">
+                        <div class="title">近3日峰值人数变化趋势（工作地）</div>
+                        <div id="bar3"></div>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="title">近3日峰值人数变化趋势（居住地）</div>
+                        <div id="bar4"></div>
+                    </div>
+                </div>
+                <div class="swiper-bt2"></div>
+            </div>
+            <div class="center-footer">技术支持：移通科技（杭州）有限公司</div>
+        </div>
+        <div class="r">
+            <div class="top box1">
+                <div class="title"><div>早晚高峰各村人数异变感知</div><div style="display: none;">更多More</div></div>
+                <div class="list">
+                    <div class="th">
+                        <span>感知日期</span>
+                        <span>感知内容</span>
+                    </div>
+                    <div class="tbody">
+                    </div>
+                </div>
+            </div>
+            <div class="box1">
+                <div class="people">
+                    <div class="swiper-wrapper">
+                        <div class="swiper-slide">
+                            <div class="title">人口流失关注村</div>
+                            <div class="person-wrapper" id="follow">
+                            </div>
+                        </div>   
+                    
+                        <div class="swiper-slide">
+                            <div class="title">人口流入嘉奖村</div>
+                            <div class="person-wrapper" id="commendation">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="swiper-center"></div>
+                </div>
+            </div>
+            <div class="bottom box1">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide">
+                        <div class="title"><div>实时在德人群画像</div><div></div></div>
+                        <div id="bar5"></div>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="title"><div>实时在德人群画像</div></div>
+                        <div id="bar6"></div>
+                    </div>
+                </div>
+                <div class="swiper-bottom"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="./static/data/china.js"></script>
+    <script src="./static/data/deqing.js"></script>
+    <script src="./static/data/test.js"></script>
+</body>
+
+</html>
