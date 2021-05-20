@@ -76,7 +76,7 @@
 }
 .content .c .map{
   height: 60vh;
-  width: 72vw;
+  width: 60vw;
   margin: 1.04167vw auto;
   position: relative;
 }
@@ -92,7 +92,7 @@
   top: 2.5vw;
   left: 15%;
   font-size: 0.83333vw;
-  z-index:999;
+  z-index:9999;
 }
 .top-left-item, 
 .top-left-item1{
@@ -155,7 +155,7 @@
   border-radius: 8px;
   padding: 1vw;
   font-size: 0.3vw;
-  z-index:999;
+  z-index:9999;
 }
 .bottom-left-top {
   display: flex;

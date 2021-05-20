@@ -1,5 +1,6 @@
 let BASEURL='http://172.16.0.186:8085/crowd';//武庆明
 // let BASEURL='http://dqmigrationinternal.ytbig.cn:8287/crowd';//线上
+
 var NODE_ENV = 'product', map, gb = { a3: 0, a1: 0, a2: 0 }, timer, pre = [];//product\\development
 let data_view = [
     {
@@ -78,6 +79,39 @@ globalTownId = '',
 globalIsShowVillage = '', 
 globalName = ''
 
+var chinaGeoCoordMap = {
+    '黑龙江': [127.9688, 45.368],
+    '内蒙古': [110.3467, 41.4899],
+    "吉林": [125.8154, 44.2584],
+    '北京': [116.4551, 40.2539],
+    "辽宁": [123.1238, 42.1216],
+    "河北": [114.4995, 38.1006],
+    "天津": [117.4219, 39.4189],
+    "山西": [112.3352, 37.9413],
+    "陕西": [109.1162, 34.2004],
+    "甘肃": [103.5901, 36.3043],
+    "宁夏": [106.3586, 38.1775],
+    "青海": [101.4038, 36.8207],
+    "新疆": [87.9236, 43.5883],
+    "西藏": [91.11, 29.97],
+    "四川": [103.9526, 30.7617],
+    "重庆": [108.384366, 30.439702],
+    "山东": [117.1582, 36.8701],
+    "河南": [113.4668, 34.6234],
+    "江苏": [118.8062, 31.9208],
+    "安徽": [117.29, 32.0581],
+    "湖北": [114.3896, 30.6628],
+    "浙江": [119.5313, 29.8773],
+    "福建": [119.4543, 25.9222],
+    "江西": [116.0046, 28.6633],
+    "湖南": [113.0823, 28.2568],
+    "贵州": [106.6992, 26.7682],
+    "云南": [102.9199, 25.4663],
+    "广东": [113.12244, 23.009505],
+    "广西": [108.479, 23.1152],
+    "海南": [110.3893, 19.8516],
+    '上海': [121.4648, 31.2891]
+};
 
 function get_num() {
     $.ajax({
@@ -876,18 +910,18 @@ function init_swiper() {
             delay: 15000
         }
     });
-    new Swiper('.map', {
-        cssMode: true,
-        pagination: {
-            el: '.swiper-map',
-            clickable: true,
-        },
-        mousewheel: true,
-        keyboard: true,
-        autoplay: {
-            delay: 15000
-        }
-    });
+    // new Swiper('.map', {
+    //     cssMode: true,
+    //     pagination: {
+    //         el: '.swiper-map',
+    //         clickable: true,
+    //     },
+    //     mousewheel: true,
+    //     keyboard: true,
+    //     autoplay: {
+    //         delay: 15000
+    //     }
+    // });
     new Swiper('.r .middle', {
         cssMode: true,
         pagination: {
@@ -941,11 +975,39 @@ function china_option(id, data) {
     //境内人口来源地，迁徙图
     var migrationChinaOption = {
         tooltip: {
-            formatter: function (params) {
-                let html =  `${params.data.name} -> 德清县：${params.data.people}`;
+            formatter: function (params, ticket, callback) {
+                var data = params.data
+                if(!data) return;
+                if (data.fromName) {
+                    var html = data.fromName + '->' + data.toName + ':' + data.value;
+                } else {
+                    var val;
+                    if (typeof data.value == 'object') {
+                        val = data.value[2]
+                    } else {
+                        val = data.value
+                    }
+                    var html = '迁移人数<br />' + data.name + ':' + val;
+                }
                 return html;
             }
         },
+        visualMap: {
+            min: data.min,
+            max: data.max,
+            calculable: true,
+            show: true,
+            color: ['#f44336', '#fc9700', '#ffde00', '#ffde00', '#00eaff'],
+            textStyle: {
+                color: '#fff',
+                fontSize: 24
+            },
+            itemWidth: '20',
+            itemHeight: '100',
+            bottom: 30,
+            right: 50,
+        },
+
         yAxis: {
             type: 'value',
             scale: true,
@@ -995,22 +1057,14 @@ function china_option(id, data) {
         },
         geo: {
             map: "china",
-            zoom: 1.6,
+            zoom: 1.2,
             label: {
-                normal: {
-                    textStyle: {
-                        color: '#1DE9B6'
-                    }
-                },
                 emphasis: {
-                    show: false,
-                    color: '#fff',
-                },
-                formatter: function (params) {
-                    return params.name;    //地图上展示文字 + 数值
-                },
+                    show: false
+                }
             },
-            roam: true, //可放大缩小，禁止掉。
+
+            roam: false, //可放大缩小，禁止掉。
             itemStyle: {
                 normal: {
                     color: 'rgba(51, 69, 89, .5)', //地图背景色
@@ -1022,7 +1076,7 @@ function china_option(id, data) {
                 }
             }
         },
-        series: [
+        series: [//
             {
                 // 迁移线特效图
                 type: 'lines',                    // 用于分层，z-index的效果
@@ -1049,9 +1103,8 @@ function china_option(id, data) {
                     normal: {
                         width: 1, //尾迹线条宽度
                         opacity: 1, //尾迹线条透明度
-                        curveness: .3, //尾迹线条曲直度
-                        color: '#4ab2e5'
-                    },
+                        curveness: .3 //尾迹线条曲直度
+                    }
                 },
                 data: data.y  // 特效的起始、终点位置
             },
@@ -1059,7 +1112,7 @@ function china_option(id, data) {
                 name: "迁移人数",
                 type: "effectScatter",
                 coordinateSystem: "geo",
-                data:  data.x,
+                data: data.x,
                 //标记大小，地图上的圆点
                 symbolSize: 2,
                 showEffectOn: "render",
@@ -1071,7 +1124,7 @@ function china_option(id, data) {
                     //地图黄点显示内容
                     normal: {
                         formatter:function (params) {
-                            return params.name+"\n"+ params.data.people;    //地图上展示文字 + 数值
+                            return params.name+"\n"+ params.value;    //地图上展示文字 + 数值
                         },
                         position: "right",
                         show: true
@@ -1096,11 +1149,7 @@ function china_option(id, data) {
 function tabChange(name) {
     let dom = document.querySelectorAll(name);
     let chinaMap = document.getElementById("china-map")
-    let deqingMap = document.getElementById("deqing-map")
     let villageMap = document.getElementById("village-map")
-    let chinaMap1 = document.getElementById("china-map1")
-    let deqingMap1 = document.getElementById("deqing-map1")
-    let villageMap1 = document.getElementById("village-map1")
     for (let i = 0; i < dom.length; i++) {
         dom[i].onmouseover = function () {
             if (name == '.top-left-item') {//实时切入来源、域内人群改变事件
@@ -1108,7 +1157,6 @@ function tabChange(name) {
                     dom[0].className = 'active';
                     dom[1].className = 'top-left-item';
                     chinaMap.classList.remove('hidden-map')
-                    deqingMap.classList.add('hidden-map')
                     villageMap.classList.add('hidden-map')
                     isShowImmigration = true;
                     townAndVillage()
@@ -1116,7 +1164,6 @@ function tabChange(name) {
                     dom[1].className = 'active';
                     dom[0].className = 'top-left-item';
                     chinaMap.classList.add('hidden-map')
-                    deqingMap.classList.add('hidden-map')
                     villageMap.classList.remove('hidden-map')
                     isShowImmigration = false
                     townAndVillage()
@@ -1126,7 +1173,6 @@ function tabChange(name) {
                     dom[0].className = 'active';
                     dom[1].className = 'top-left-item1';
                     chinaMap1.classList.remove('hidden-map')
-                    deqingMap1.classList.add('hidden-map')
                     villageMap1.classList.add('hidden-map')
                     isShowImmigration1 = true;
                     townAndVillage()
@@ -1134,7 +1180,6 @@ function tabChange(name) {
                     dom[1].className = 'active';
                     dom[0].className = 'top-left-item1';
                     chinaMap1.classList.add('hidden-map')
-                    deqingMap1.classList.add('hidden-map')
                     villageMap1.classList.remove('hidden-map')
                     isShowImmigration1= false
                     townAndVillage()
@@ -1174,11 +1219,7 @@ function selectChange(name) {
     let dom = document.querySelectorAll(name);
     var villageList = []
     let chinaMap = document.getElementById("china-map")
-    let deqingMap = document.getElementById("deqing-map")
     let villageMap = document.getElementById("village-map")
-    let chinaMap1 = document.getElementById("china-map1")
-    let deqingMap1 = document.getElementById("deqing-map1")
-    let villageMap1 = document.getElementById("village-map1")
     for (let i = 0; i < dom.length; i++) {
         if(i == 0) {//县
             townAndVillage();//获取乡、镇列表
@@ -1188,7 +1229,6 @@ function selectChange(name) {
                     let villageListHtml = ''
                     townAndVillageData.forEach(item => {
                         if(item.townId == dom[i].value) {
-                            console.log(item.townId,"item.townId")
                             villageList = item.villageList
                             villageList.forEach(i => {
                                 villageListHtml += `<option value ="${i.villageId}">${i.villageName}</option>`
@@ -1196,34 +1236,32 @@ function selectChange(name) {
                             $("#village").html(villageListHtml)
                             if(isShowImmigration) {
                                 chinaMap.classList.remove('hidden-map')
-                                deqingMap.classList.add('hidden-map')
                                 villageMap.classList.add('hidden-map')
                                 tomoveIn(dom[i].value, null)
                             }else{
                                 chinaMap.classList.add('hidden-map')
-                                deqingMap.classList.remove('hidden-map')
                                 villageMap.classList.add('hidden-map')
-                                // inDomainCrowdFlow(null, dom[i].value, true, item.townName)
+                                inDomainCrowdFlow(null, dom[i].value, true, item.townName)
                                 globalVillageId = null,
                                 globalTownId = dom[i].value, 
                                 globalIsShowVillage = true, 
                                 globalName = item.townName
                             }
-                            if(isShowImmigration1) {
-                                chinaMap1.classList.remove('hidden-map')
-                                deqingMap1.classList.add('hidden-map')
-                                villageMap1.classList.add('hidden-map')
-                                tomoveIn(dom[i].value, null)
-                            }else {
-                                chinaMap1.classList.add('hidden-map')
-                                deqingMap1.classList.remove('hidden-map')
-                                villageMap1.classList.add('hidden-map')
-                                // inDomainCrowdFlow(null, dom[i].value, true, item.townName)
-                                globalVillageId = null,
-                                globalTownId = dom[i].value, 
-                                globalIsShowVillage = true, 
-                                globalName = item.townName
-                            }
+                            // if(isShowImmigration1) {
+                            //     chinaMap1.classList.remove('hidden-map')
+                            //     deqingMap1.classList.add('hidden-map')
+                            //     villageMap1.classList.add('hidden-map')
+                            //     tomoveIn(dom[i].value, null)
+                            // }else {
+                            //     chinaMap1.classList.add('hidden-map')
+                            //     deqingMap1.classList.remove('hidden-map')
+                            //     villageMap1.classList.add('hidden-map')
+                            //     // inDomainCrowdFlow(null, dom[i].value, true, item.townName)
+                            //     globalVillageId = null,
+                            //     globalTownId = dom[i].value, 
+                            //     globalIsShowVillage = true, 
+                            //     globalName = item.townName
+                            // }
                         }
                     })
                 }else if(i == 2) {//监听村改变事件
@@ -1231,12 +1269,10 @@ function selectChange(name) {
                         if(item.villageId ==  dom[i].value) {
                             if(isShowImmigration) {
                                 chinaMap.classList.remove('hidden-map')
-                                deqingMap.classList.add('hidden-map')
                                 villageMap.classList.add('hidden-map')
                                 tomoveIn(null,item.villageId)
                             }else {
                                 chinaMap.classList.add('hidden-map')
-                                deqingMap.classList.add('hidden-map')
                                 villageMap.classList.remove('hidden-map')
                                 inDomainCrowdFlow(item.villageId, null, true, item.villageName)
                                 globalVillageId = item.villageId,
@@ -1244,21 +1280,21 @@ function selectChange(name) {
                                 globalIsShowVillage = true, 
                                 globalName = item.villageName
                             }
-                            if(isShowImmigration1) {
-                                chinaMap1.classList.remove('hidden-map')
-                                deqingMap1.classList.add('hidden-map')
-                                villageMap1.classList.add('hidden-map')
-                                tomoveIn(null,item.villageId)
-                            }else {
-                                chinaMap1.classList.add('hidden-map')
-                                deqingMap1.classList.add('hidden-map')
-                                villageMap1.classList.remove('hidden-map')
-                                inDomainCrowdFlow(item.villageId, null, true, item.villageName)
-                                globalVillageId = item.villageId,
-                                globalTownId = null, 
-                                globalIsShowVillage = true, 
-                                globalName = item.villageName
-                            }
+                            // if(isShowImmigration1) {
+                            //     chinaMap1.classList.remove('hidden-map')
+                            //     deqingMap1.classList.add('hidden-map')
+                            //     villageMap1.classList.add('hidden-map')
+                            //     tomoveIn(null,item.villageId)
+                            // }else {
+                            //     chinaMap1.classList.add('hidden-map')
+                            //     deqingMap1.classList.add('hidden-map')
+                            //     villageMap1.classList.remove('hidden-map')
+                            //     inDomainCrowdFlow(item.villageId, null, true, item.villageName)
+                            //     globalVillageId = item.villageId,
+                            //     globalTownId = null, 
+                            //     globalIsShowVillage = true, 
+                            //     globalName = item.villageName
+                            // }
                         }
                     })
                    
@@ -1273,7 +1309,6 @@ function village_option(id, data) {
     var option = {
         tooltip: {
             formatter: function (params) {
-                console.log(params,"params")
                 let html =  `${params.data.name} -> ${params.data.name1}：${params.data.people}`;
                 return html;
             }
@@ -1460,14 +1495,14 @@ function townAndVillage() {
                 $("#village").html(oneOption)
                 document.getElementById("village").childNodes[11].selected = true
             }
-            if(isShowImmigration1) {
-                document.getElementById("town1").childNodes[0].selected = true
-                document.getElementById("village1").childNodes[0].selected = true
-            }else {
-                document.getElementById("town1").childNodes[2].selected = true
-                $("#village1").html(oneOption)
-                document.getElementById("village1").childNodes[11].selected = true
-            }
+            // if(isShowImmigration1) {
+            //     document.getElementById("town1").childNodes[0].selected = true
+            //     document.getElementById("village1").childNodes[0].selected = true
+            // }else {
+            //     document.getElementById("town1").childNodes[2].selected = true
+            //     $("#village1").html(oneOption)
+            //     document.getElementById("village1").childNodes[11].selected = true
+            // }
         }
     })
 }
@@ -1483,23 +1518,27 @@ function tomoveIn(townId,villageId) {
             townId   
         },
         success: function (data) {
-            let x = [], y = [];
-            reg_china.features.forEach(item => {
-                data.forEach(i => {
-                    item.properties.name = item.properties.name.slice(0, 2)
-                    if(item.properties.name == i.NAME){
-                        if(item.geometry.coordinates) {
-                            x.push({value: item.geometry.coordinates[0][3], name: i.NAME, people:i.NUM, id: i.ID})
-                            y.push({coords: [item.geometry.coordinates[0][3], [122.64429652561057,30.814879527577585]], people:i.NUM, name:i.NAME})
-                        }else if(item.geometry.geometries) {
-                            x.push({value: item.geometry.geometries[0].coordinates[0][3], name: i.NAME, people:i.NUM, id: i.ID})
-                            y.push({coords: [item.geometry.geometries[0].coordinates[0][3], [122.64429652561057,30.814879527577585]], people:i.NUM, name: i.NAME})
+            let x = [], y = [],max = [];
+            data.forEach(v=>{
+                let {NAME,NUM}=v;
+                let coord=chinaGeoCoordMap[NAME];
+                if(coord){
+                    x.push({ name: NAME, value: NUM,coord, });
+                    y.push([
+                        {
+                            name: NAME,
+                            value: NUM,
+                            coord
+                        },
+                        {
+                            name: '德清县',
+                            coord: [119.977401,30.54251],
                         }
-                    }
-                })
-           })
-           china_option('china-map', { max: 100, min: 0, x, y })
-           china_option('china-map1', { max: 100, min: 0, x, y })
+                    ])
+                    max.push(NUM)
+                }
+            })
+           china_option('china-map', { max:Math.max(...max), min: 0, x, y,center:'德清县' })
         }
     })
 }
@@ -1515,7 +1554,7 @@ function inDomainCrowdFlow(villageId, townId, isShowVillage, name) {
         },
         crossDomain: true,
         success: function (data) {
-           if(isShowVillage) {
+        //    if(isShowVillage) {
                //村边界
                 var x = [], y = [], endPoint = [];
                 test.features.forEach(item => {
@@ -1566,57 +1605,53 @@ function inDomainCrowdFlow(villageId, townId, isShowVillage, name) {
                     }
                 })
                 village_option('village-map', { max: 100, min: 0, x, y })
-                village_option('village-map1', { max: 100, min: 0, x, y })
-            }else {
-                //乡镇边界
-               let x = [], y = [];
-               reg_deqing.features.forEach(item => {
-                   if(isIn) {
-                       //人群流入
-                       data.in.forEach(i => {
-                           if(item.properties.name == name) {
-                               if(item.geometry.coordinates) {
-                                    endPoint = item.geometry.coordinates[0][3]
-                                }else if(item.geometry.geometries) {
-                                    endPoint = item.geometry.geometries[0].coordinates[0][3]
-                                }
-                            }
-                            if(item.properties.name == i.NAME){
-                                if(item.geometry.coordinates) {
-                                    x.push({value: item.geometry.coordinates[0][3], name: i.NAME, people:i.inNum ? i.inNum : '', id: i.ID})
-                                    y.push({coords: [item.geometry.coordinates[0][3], endPoint ? endPoint : [119.757, 30.697] ]})
-                                }else if(item.geometry.geometries) {
-                                    x.push({value: item.geometry.geometries[0].coordinates[0][3], name: i.NAME, people:i.inNum ? i.inNum : '', id: i.ID})
-                                    y.push({coords: [item.geometry.geometries[0].coordinates[0][3], endPoint ? endPoint : [119.757, 30.697]]})
-                                }
-                            }
-                        })
-                   }else {
-                       //人群流出
-                       data.out.forEach(i => {
-                           if(item.properties.name == name) {
-                               if(item.geometry.coordinates) {
-                                   endPoint = item.geometry.coordinates[0][3]
-                               }else if(item.geometry.geometries) {
-                                   endPoint = item.geometry.geometries[0].coordinates[0][3]
-                               }
-                           }
-                           console.log(111, item.properties.name, i.NAME)
-                           if(item.properties.name == i.NAME){
-                               if(item.geometry.coordinates) {
-                                   x.push({value: item.geometry.coordinates[0][3], name: i.NAME, people:i.inNum ? i.inNum : '', id: i.ID})
-                                   y.push({coords: [endPoint, item.geometry.coordinates[0][3]], people:i.NUM, name:i.NAME, name1: name })
-                               }else if(item.geometry.geometries) {
-                                   x.push({value: item.geometry.geometries[0].coordinates[0][3], name: i.NAME, people:i.inNum ? i.inNum : '', id: i.ID})
-                                   y.push({coords: [endPoint,item.geometry.geometries[0].coordinates[0][3]], people:i.NUM, name:i.NAME, name1: name })
-                               }
-                           }
-                       })
-                   }
-               })
-                // draw_deqing('deqing-map', { max: 100, min: 0, x, y })
-                // draw_deqing('deqing-map1', { max: 100, min: 0, x, y })
-           }
+        //     }else {
+        //         //乡镇边界
+        //        let x = [], y = [];
+        //        reg_deqing.features.forEach(item => {
+        //            if(isIn) {
+        //                //人群流入
+        //                data.in.forEach(i => {
+        //                    if(item.properties.name == name) {
+        //                        if(item.geometry.coordinates) {
+        //                             endPoint = item.geometry.coordinates[0][3]
+        //                         }else if(item.geometry.geometries) {
+        //                             endPoint = item.geometry.geometries[0].coordinates[0][3]
+        //                         }
+        //                     }
+        //                     if(item.properties.name == i.NAME){
+        //                         if(item.geometry.coordinates) {
+        //                             x.push({value: item.geometry.coordinates[0][3], name: i.NAME, people:i.inNum ? i.inNum : '', id: i.ID})
+        //                             y.push({coords: [item.geometry.coordinates[0][3], endPoint ? endPoint : [119.757, 30.697] ]})
+        //                         }else if(item.geometry.geometries) {
+        //                             x.push({value: item.geometry.geometries[0].coordinates[0][3], name: i.NAME, people:i.inNum ? i.inNum : '', id: i.ID})
+        //                             y.push({coords: [item.geometry.geometries[0].coordinates[0][3], endPoint ? endPoint : [119.757, 30.697]]})
+        //                         }
+        //                     }
+        //                 })
+        //            }else {
+        //                //人群流出
+        //                data.out.forEach(i => {
+        //                    if(item.properties.name == name) {
+        //                        if(item.geometry.coordinates) {
+        //                            endPoint = item.geometry.coordinates[0][3]
+        //                        }else if(item.geometry.geometries) {
+        //                            endPoint = item.geometry.geometries[0].coordinates[0][3]
+        //                        }
+        //                    }
+        //                    if(item.properties.name == i.NAME){
+        //                        if(item.geometry.coordinates) {
+        //                            x.push({value: item.geometry.coordinates[0][3], name: i.NAME, people:i.inNum ? i.inNum : '', id: i.ID})
+        //                            y.push({coords: [endPoint, item.geometry.coordinates[0][3]], people:i.NUM, name:i.NAME, name1: name })
+        //                        }else if(item.geometry.geometries) {
+        //                            x.push({value: item.geometry.geometries[0].coordinates[0][3], name: i.NAME, people:i.inNum ? i.inNum : '', id: i.ID})
+        //                            y.push({coords: [endPoint,item.geometry.geometries[0].coordinates[0][3]], people:i.NUM, name:i.NAME, name1: name })
+        //                        }
+        //                    }
+        //                })
+        //            }
+        //        })
+        //    }
         }
     })
 }
@@ -1629,7 +1664,7 @@ window.onload = function () {
     tabChange('.bottom-left-bottom-item')
     tabChange('.bottom-left-bottom-item1')
     selectChange('.bottom-left-top-item')
-    selectChange('.bottom-left-top-item1')
+    // selectChange('.bottom-left-top-item1')
     get_num();
     init_swiper();
 }
