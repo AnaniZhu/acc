@@ -23,26 +23,6 @@ let data_view = [
         val: 0,
         key: 'high'
     },
-    // {
-    //     name: '谷值人数',
-    //     val: 0,
-    //     key: 'valleyVal'
-    // },
-    // {
-    //     name: '外来人口',
-    //     val: 0,
-    //     key: 'foreign'
-    // },
-    // {
-    //     name: '工作地数',
-    //     val: 0,
-    //     key: 'workplace'
-    // },
-    // {
-    //     name: '居住地数',
-    //     val: 0,
-    //     key: 'live'
-    // }
 ], 
 form4 = [
     {
@@ -79,6 +59,15 @@ globalVillageName = '',//村名
 globalTownId = '', 
 globalIsShowVillage = '',
 globalName = '';
+
+function magic_number(value,num) {
+    num.animate({ count: value }, {
+        duration: 3000, //持续时间
+        step: function () {
+            num.text(Math.round(this.count));
+        }
+    });
+};
 
 function get_num() {
     $.ajax({
@@ -233,23 +222,12 @@ function get_num() {
 
             //在德数据概览
             let d1 = data.dataOverview;
-            $('.numlist').html(data_view.map((v, i) => {
-                if(i == 2) {
-                    return `
-                        <div>
-                            <p>${d1.crowdDynamic.name.slice(0, 5)}</p>
-                            <span>${v.name}</span>
-                        </div>
-                    `
-                }else {
-                    return `
-                        <div>
-                            <p>${d1[v.key]}</p>
-                            <span>${v.name}</span>
-                        </div>
-                    `
-                }
-            }));
+            setTimeout(()=>{
+                magic_number(d1.num, $(".numlist .num1"));
+                magic_number(d1.peak, $(".numlist .num2"));
+            },0)
+            $(".numlist .num3").html(d1.crowdDynamic.name.slice(0, 5))
+            $(".numlist .num4").html(d1.high)
             $('.numlist div').each(function (one) {
                 let p = $(one).find('p').eq(0), end = p.text();
                 jumpNum(end, 1200, p)
@@ -882,7 +860,6 @@ function selectChange(name,villageList = []) {
             // townAndVillage();//获取乡、镇列表
         }else {//镇、村
             dom[i].onchange = function () {
-                console.log('监听改变',i,villageList);
                if(i == 1) {//监听镇改变事件
                     let villageListHtml = ''
                     townAndVillageData.forEach(item => {
@@ -894,7 +871,6 @@ function selectChange(name,villageList = []) {
                             $("#village").html(villageListHtml)
                             globalVillageId = villageList[0].villageId//村id
                             globalVillageName = villageList[0].villageName//村名
-                            console.log('镇改变',globalVillageId,globalVillageName,isShowImmigration);
                             if(isShowImmigration) {
                                 chinaMap.classList.remove('hidden-map')
                                 villageMap.classList.add('hidden-map')
@@ -914,7 +890,6 @@ function selectChange(name,villageList = []) {
                         if(item.villageId ==  dom[i].value) {
                             globalVillageId = item.villageId//村id
                             globalVillageName = item.villageName//村名
-                            console.log('村改变',isShowImmigration,dom[i].value,globalVillageId,globalVillageName);
                             if(isShowImmigration) {
                                 chinaMap.classList.remove('hidden-map')
                                 villageMap.classList.add('hidden-map')
@@ -939,7 +914,6 @@ function selectChange(name,villageList = []) {
 
 //地图配置项
 function map_option(id, data) {
-    console.log('我要画图了',id,data);
     var option = {
         visualMap: {
             min: data.min,
@@ -954,7 +928,7 @@ function map_option(id, data) {
             itemWidth: '20',
             itemHeight: '100',
             bottom: 30,
-            right: 50,
+            right: 70,
         },
         tooltip: {
             formatter: function (params) {
