@@ -93,6 +93,7 @@
   left: 15%;
   font-size: 0.83333vw;
   z-index:9999;
+  cursor: pointer;
 }
 .top-left-item, 
 .top-left-item1{
@@ -156,6 +157,7 @@
   padding: 1vw;
   font-size: 0.3vw;
   z-index:9999;
+  cursor: pointer;
 }
 .bottom-left-top {
   display: flex;
